@@ -1,9 +1,10 @@
 <div ng-repeat="project in projects">
-<ion-view title="{{ project.parentProject.name }} {{ project.name }}">
-    <ion-content>
-        <ion-list>
-            <ng-include src="'templates/projectItems.html'"></ng-include>
-        </ion-list>
-    </ion-content>
-</ion-view>
+    <ion-view title="{{ getFullProjectName(project) }}">
+        <ion-content>
+            <ion-list>
+                <ng-include ng-repeat="buildType in project.buildTypes" src="'templates/buildTypeItems.html'"></ng-include>
+                <ng-include ng-repeat="project in project.projects" src="'templates/projectItems.html'"></ng-include>
+            </ion-list>
+        </ion-content>
+    </ion-view>
 </div>

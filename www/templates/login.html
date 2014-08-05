@@ -1,0 +1,34 @@
+<ion-view>
+    <ion-header-bar class="bar-dark">
+        <h1 class="title">smartcity</h1>
+    </ion-header-bar>
+    <ion-content class="dark-bg">
+        <form name="loginForm" ng-submit="login()">
+            <ion-list>
+                <ion-item class="item-input-inset item-dark">
+                    <label class="item-input-wrapper">
+                        <input type="text" required placeholder="username" ng-model="loginData.username">
+                    </label>
+                </ion-item>
+                <ion-item class="item-input-inset item-dark">
+                    <label class="item-input-wrapper">
+                        <input ng-if="!showPassword" type="password" required placeholder="password" ng-model="loginData.password">
+                        <input ng-if="showPassword" type="text" required placeholder="password" ng-model="loginData.password">
+                    </label>
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="showPassword">
+                    </label>
+                    <small>Show</small>
+                </ion-item>
+                <ion-item class="item-input-inset item-dark">
+                    <label class="item-input-wrapper">
+                        <input type="url" required placeholder="server url" ng-model="loginData.serverUrl">
+                    </label>
+                </ion-item>
+            </ion-list>
+            <div class="padding">
+                <button ng-disabled="!loginForm.$valid" class="button button-block button-positive">Login</button>
+            </div>
+        </form>
+    </ion-content>
+</ion-view>

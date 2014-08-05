@@ -76,4 +76,37 @@ angular.module('smartcity.services', [])
           return builds;
         }
       }
+    })
+    .factory('Credentials', function ($window) {
+      return {
+        exist: function () {
+          return !!$window.localStorage.credentials && !!$window.localStorage.serverUrl;
+        },
+        getBasic: function () {
+          return $window.localStorage.credentials;
+        },
+        getBaseUrl: function () {
+          var serverUrl = $window.localStorage.serverUrl;
+          var baseUrl = serverUrl + (/\/$/.test(serverUrl) ? '' : '/') + 'httpAuth/app/rest';
+
+          return baseUrl;
+        },
+        getServerUrl: function () {
+          return $window.localStorage.serverUrl;
+        },
+        set: function (username, password, serverUrl) {
+          $window.localStorage.credentials = btoa(username + ':' + password);
+          $window.localStorage.serverUrl = serverUrl;
+        },
+        unset: function () {
+          delete $window.localStorage.credentials;
+          delete $window.localStorage.serverUrl;
+        }
+      };
+    })
+    .factory('ConfigureRestangular', function (Restangular, Credentials) {
+      return function () {
+        Restangular.setBaseUrl(Credentials.getBaseUrl());
+        Restangular.setDefaultHeaders({ authorization: 'Basic ' + Credentials.getBasic()});
+      }
     });

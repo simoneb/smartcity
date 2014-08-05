@@ -1,0 +1,6 @@
+<ion-item class="item-icon-left" href="#/build/{{build.id}}">
+    <ng-include src="'templates/buildStatusIcon.html'"></ng-include>
+    #{{build.number}}
+    <span class="item-note">{{ build.finishDate | date:'short' }}</span>
+    <p>{{ build.statusText }}</p>
+</ion-item>

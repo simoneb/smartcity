@@ -1,7 +1,11 @@
 angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.controllers', 'restangular'])
-    .constant('ServerUrl', 'http://teamcityproxy.herokuapp.com')
-    .config(function ($httpProvider, $urlRouterProvider, $stateProvider, RestangularProvider, ServerUrl) {
+    .config(function ($stateProvider, $urlRouterProvider) {
       $stateProvider
+          .state('login', {
+            url: '/login',
+            templateUrl: 'templates/login.html',
+            controller: 'loginCtrl'
+          })
           .state('home', {
             abstract: true,
             templateUrl: 'templates/home.html',
@@ -24,45 +28,8 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
           });
 
       $urlRouterProvider.otherwise('/');
-
-      RestangularProvider.setBaseUrl(ServerUrl + '/httpAuth/app/rest');
-      RestangularProvider.setDefaultHttpFields({cache: true});
-
-      RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response) {
-        if (operation === "getList") {
-          return data[what.substring(0, what.length - 1)];
-        }
-
-        return data;
-      });
-
-      // Workaround for https://github.com/mgonto/restangular/issues/493
-      // Part 1: Figure out the protocol, host and port of the base url
-      var parser = document.createElement('a');
-      parser.href = RestangularProvider.configuration.baseUrl;
-      var baseUrl = parser.protocol + '//' + parser.host;
-
-      RestangularProvider.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
-        if (operation === "getList") {
-          // Workaround for https://github.com/mgonto/restangular/issues/493
-          // Part 2: Update selfLinks to have the full URL with the host
-          if (data && data.length && data[0].href) {
-            data.forEach(function (item) {
-              if (item.href && item.href[0] === '/') {
-                item.href = baseUrl + item.href;
-              }
-            });
-          }
-        }
-        if (operation === 'get') {
-          data.href = baseUrl + data.href;
-        }
-
-        return data;
-      });
-
     })
-    .run(function ($ionicPlatform, $state) {
+    .run(function ($ionicPlatform, $location, Credentials, Restangular, ConfigureRestangular) {
       $ionicPlatform.ready(function () {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -72,5 +39,56 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
         if (window.StatusBar) {
           StatusBar.styleDefault();
         }
+
+//        Restangular.setDefaultHttpFields({cache: true});
+
+        Restangular.addResponseInterceptor(function (data, operation, what, url, response) {
+          if (operation === "getList") {
+            return data[what.substring(0, what.length - 1)];
+          }
+
+          return data;
+        });
+
+        Restangular.setErrorInterceptor(function (response, deferred, responseHandler) {
+          switch (response.status) {
+            case 401:
+              $location.url('/login');
+              return false;
+            case 0: // request error
+              return false;
+          }
+
+          return true; // error not handled
+        });
+
+        var parser = document.createElement('a');
+
+        Restangular.addResponseInterceptor(function (data, operation, what, url, response, deferred) {
+          var baseUrl = Credentials.getBaseUrl();
+          parser.href = baseUrl;
+          baseUrl = parser.protocol + '//' + parser.host;
+
+          if (operation === "getList") {
+            if (data && data.length && data[0].href) {
+              data.forEach(function (item) {
+                if (item.href && item.href[0] === '/') {
+                  item.href = baseUrl + item.href;
+                }
+              });
+            }
+          }
+          if (operation === 'get') {
+            data.href = baseUrl + data.href;
+          }
+
+          return data;
+        });
+
+        if (!Credentials.exist()) {
+          return $location.url('/login');
+        }
+
+        ConfigureRestangular();
       });
     });
