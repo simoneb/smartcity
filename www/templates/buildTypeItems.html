@@ -1,0 +1,7 @@
+<ion-item href="#/buildType/{{buildType.id}}">
+    {{buildType.name}}
+</ion-item>
+<ion-item class="item-icon-left" ng-repeat="build in buildType.builds" href="#/build/{{build.id}}">
+    <ng-include src="'templates/buildStatusIcon.html'"></ng-include>
+    {{build.number}}
+</ion-item>

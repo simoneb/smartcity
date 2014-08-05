@@ -1,0 +1,5 @@
+<ion-item href="#/{{project.id}}">
+    <strong>{{project.name}}</strong>
+</ion-item>
+<ng-include ng-repeat="buildType in project.buildTypes" src="'templates/buildTypeItems.html'"></ng-include>
+<ng-include ng-repeat="project in project.projects" src="'templates/projectItems.html'"></ng-include>

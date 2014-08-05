@@ -1,0 +1,9 @@
+<div ng-repeat="project in projects">
+<ion-view title="{{ project.parentProject.name }} {{ project.name }}">
+    <ion-content>
+        <ion-list>
+            <ng-include src="'templates/projectItems.html'"></ng-include>
+        </ion-list>
+    </ion-content>
+</ion-view>
+</div>

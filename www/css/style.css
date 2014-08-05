@@ -1,1 +1,10 @@
-/* Empty. Add your own CSS if you like */
+.color-demo {
+    /*float: right;*/
+    margin-top: auto;
+    margin-bottom: auto;
+    width: 20px;
+    height: 20px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 4px;
+     }
