@@ -39,6 +39,6 @@ angular.module('smartcity.controllers', ['ionic'])
       }, 5000);
 
       $scope.$on('$destroy', function () {
-        $interval.cancal(token);
+        $interval.cancel(token);
       });
     });

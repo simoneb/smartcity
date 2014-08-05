@@ -1,5 +1,5 @@
 angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.controllers', 'restangular'])
-    .constant('ServerUrl', 'http://localhost:3000')
+    .constant('ServerUrl', 'http://teamcityproxy.herokuapp.com')
     .config(function ($httpProvider, $urlRouterProvider, $stateProvider, RestangularProvider, ServerUrl) {
       $stateProvider
           .state('home', {
