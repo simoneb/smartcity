@@ -13,10 +13,15 @@
                     {{ build.startDate | date:'short' }} - {{ build.finishDate | date:'short' }}
                     ({{ duration(build) }}s)
                 </ion-item>
-                <ion-item>
-                    Trigger: {{ build.triggered.type }} - {{ build.triggered.details }}
-                    on {{ build.triggered.date | date:'short' }}
-                </ion-item>
+                <div ng-switch="build.triggered.type">
+                    <ion-item ng-switch-when="unknown">
+                        Trigger: ? on {{ build.triggered.date | date:'short' }}
+                    </ion-item>
+                    <ion-item ng-switch-default>
+                        Trigger: {{ build.triggered.type }} - {{ build.triggered.details }}
+                        on {{ build.triggered.date | date:'short' }}
+                    </ion-item>
+                </div>
                 <ion-item>
                     Agent: {{ build.agent.name }}
                 </ion-item>
