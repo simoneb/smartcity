@@ -12,8 +12,10 @@
                 </ion-item>
                 <ion-item class="item-input-inset item-dark">
                     <label class="item-input-wrapper">
-                        <input ng-if="!showPassword" type="password" required placeholder="password" ng-model="loginData.password">
-                        <input ng-if="showPassword" type="text" required placeholder="password" ng-model="loginData.password">
+                        <input ng-if="!showPassword" type="password" required placeholder="password"
+                               ng-model="loginData.password">
+                        <input ng-if="showPassword" type="text" required placeholder="password"
+                               ng-model="loginData.password">
                     </label>
                     <label class="checkbox">
                         <input type="checkbox" ng-model="showPassword">
@@ -24,6 +26,14 @@
                     <label class="item-input-wrapper">
                         <input type="url" required placeholder="server url" ng-model="loginData.serverUrl">
                     </label>
+                </ion-item>
+                <ion-item class="item-input-inset item-dark item-checkbox">
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="loginData.remember">
+                    </label>
+                    <small>
+                        Remember
+                    </small>
                 </ion-item>
             </ion-list>
             <div class="padding">

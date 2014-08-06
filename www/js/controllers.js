@@ -1,28 +1,31 @@
 angular.module('smartcity.controllers', ['ionic'])
+    .controller('loadingCtrl', function ($scope, loadingStatus) {
+      $scope.status = loadingStatus;
+    })
     .controller('loginCtrl', function ($scope, $ionicPopup, $location, Credentials, ConfigureRestangular) {
-      var basic = Credentials.getBasic();
-
       $scope.loginData = {
-        username: basic && atob(basic).split(':')[0],
-        password: basic && atob(basic).split(':')[1],
-        serverUrl: Credentials.getServerUrl()
+        username: Credentials.getUsername(),
+        password: Credentials.getPassword(),
+        serverUrl: Credentials.getServerUrl(),
+        remember: Credentials.getRemember()
       };
 
-      $scope.login = function() {
-        Credentials.set($scope.loginData.username, $scope.loginData.password, $scope.loginData.serverUrl);
+      $scope.login = function () {
+        Credentials.set($scope.loginData.username,
+            $scope.loginData.password,
+            $scope.loginData.serverUrl,
+            $scope.loginData.remember);
 
         ConfigureRestangular();
 
         $location.url('/');
       };
     })
-    .controller('homeCtrl', function ($scope, $ionicPopup, $location, Credentials, Restangular) {
+    .controller('homeCtrl', function ($scope, $ionicPopup, $location, Users, Projects, Credentials, Restangular) {
+      $scope.user = Users.getCurrentUser().$object;
 
-      $scope.user = Restangular.oneUrl('users', Restangular.configuration.baseUrl + '/users/username:simone.busoli').get().$object;
-
-
-      Restangular.all('projects').getList().then(function(projects){
-        $scope.rootProjects = _.filter(projects, { parentProjectId: '_Root' });
+      Projects.getShallowRootProjects(function (projecsts) {
+        $scope.rootProjects = projecsts;
       });
 
       $scope.logout = function () {
@@ -33,12 +36,13 @@ angular.module('smartcity.controllers', ['ionic'])
           cancelText: 'No'
         }).then(function (yes) {
           if (yes) {
-            Credentials.unset();
+            if (!Credentials.getRemember()) {
+              Credentials.unset();
+            }
             $location.url('/login');
           }
         });
       };
-
     })
     .controller('projectCtrl', function ($scope, $stateParams, Projects, Credentials) {
       $scope.projects = Projects.getById($stateParams.projectId || '_Root');
@@ -48,7 +52,7 @@ angular.module('smartcity.controllers', ['ionic'])
           return p && !p.parentProjectId;
         };
 
-        if (isRoot(project)) return Credentials.getServerUrl();
+        if (isRoot(project)) return 'Projects';
 
         if (isRoot(project.parentProject)) return project.name;
 
@@ -83,12 +87,12 @@ angular.module('smartcity.controllers', ['ionic'])
       });
 
       var token = $interval(function () {
-        Restangular.all('builds')
+        Restangular.all('builds').withHttpConfig({ skipLoadingIndicator: true })
             .getList({ count: 1, locator: 'running:true' })
             .then(function (runningBuilds) {
               $scope.runningBuilds = runningBuilds;
             });
-      }, 10000);
+      }, 20000);
 
       $scope.$on('$destroy', function () {
         $interval.cancel(token);

@@ -1,6 +1,11 @@
 angular.module('smartcity.services', [])
     .factory('Projects', function (Restangular) {
       return {
+        getShallowRootProjects: function (callback) {
+          return Restangular.all('projects').getList().then(function (projects) {
+            callback(_.filter(projects, { parentProjectId: '_Root' }));
+          });
+        },
         getById: function (projectId) {
           var projects = [];
 
@@ -94,19 +99,76 @@ angular.module('smartcity.services', [])
         getServerUrl: function () {
           return $window.localStorage.serverUrl;
         },
-        set: function (username, password, serverUrl) {
+        getUsername: function () {
+          return $window.localStorage.credentials && atob($window.localStorage.credentials).split(':')[0];
+        },
+        getPassword: function () {
+          return $window.localStorage.credentials && atob($window.localStorage.credentials).split(':')[1];
+        },
+        getRemember: function () {
+          return !!($window.localStorage.rememberCredentials &&
+              JSON.parse($window.localStorage.rememberCredentials));
+        },
+        set: function (username, password, serverUrl, remember) {
           $window.localStorage.credentials = btoa(username + ':' + password);
           $window.localStorage.serverUrl = serverUrl;
+          $window.localStorage.rememberCredentials = remember;
         },
         unset: function () {
           delete $window.localStorage.credentials;
           delete $window.localStorage.serverUrl;
+          delete $window.localStorage.rememberCredentials;
         }
       };
     })
     .factory('ConfigureRestangular', function (Restangular, Credentials) {
       return function () {
-        Restangular.setBaseUrl(Credentials.getBaseUrl());
-        Restangular.setDefaultHeaders({ authorization: 'Basic ' + Credentials.getBasic()});
+        if (Credentials.exist()) {
+          Restangular.setBaseUrl(Credentials.getBaseUrl());
+          Restangular.setDefaultHeaders({ authorization: 'Basic ' + Credentials.getBasic()});
+        }
+      }
+    })
+    .factory('Users', function (Restangular, Credentials) {
+      return {
+        getCurrentUser: function () {
+          return Restangular.oneUrl('users',
+                  Credentials.getBaseUrl() + '/users/username:' + Credentials.getUsername())
+              .get();
+        }
+      }
+    })
+    .service('loadingStatus', function ($timeout) {
+      var token,
+          self = this;
+
+      this.loading = false;
+      this.set = function (value) {
+        if(angular.isDefined(token)) {
+          $timeout.cancel(token);
+        }
+
+        // delay hiding loading indicator
+        token = $timeout(function(){
+          self.loading = !!value;
+        }, value ? 0 : 200);
+      };
+    })
+    .factory('loadingInterceptor', function ($q, $timeout, loadingStatus) {
+      return {
+        request: function (config) {
+          if (!config.skipLoadingIndicator) {
+            loadingStatus.set(true);
+          }
+          return config;
+        },
+        response: function (response) {
+          loadingStatus.set(false);
+          return response;
+        },
+        responseError: function (rejection) {
+          loadingStatus.set(false);
+          return $q.reject(rejection);
+        }
       }
     });
