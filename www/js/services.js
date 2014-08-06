@@ -82,7 +82,11 @@ angular.module('smartcity.services', [])
         }
       }
     })
-    .factory('Credentials', function ($window) {
+    .factory('Credentials', function ($window, ProxyUrl) {
+      function buildBaseUrl(serverUrl) {
+        return serverUrl + (/\/$/.test(serverUrl) ? '' : '/') + 'httpAuth/app/rest';
+      }
+
       return {
         exist: function () {
           return !!$window.localStorage.credentials && !!$window.localStorage.serverUrl;
@@ -90,11 +94,9 @@ angular.module('smartcity.services', [])
         getBasic: function () {
           return $window.localStorage.credentials;
         },
-        getBaseUrl: function () {
-          var serverUrl = $window.localStorage.serverUrl;
-          var baseUrl = serverUrl + (/\/$/.test(serverUrl) ? '' : '/') + 'httpAuth/app/rest';
 
-          return baseUrl;
+        getBaseUrl: function () {
+          return buildBaseUrl(this.getUseProxy() ? ProxyUrl : $window.localStorage.serverUrl);
         },
         getServerUrl: function () {
           return $window.localStorage.serverUrl;
@@ -109,23 +111,36 @@ angular.module('smartcity.services', [])
           return !!($window.localStorage.rememberCredentials &&
               JSON.parse($window.localStorage.rememberCredentials));
         },
-        set: function (username, password, serverUrl, remember) {
+        getUseProxy: function () {
+          return !!($window.localStorage.useProxy &&
+              JSON.parse($window.localStorage.useProxy));
+        },
+        set: function (username, password, serverUrl, remember, useProxy) {
           $window.localStorage.credentials = btoa(username + ':' + password);
           $window.localStorage.serverUrl = serverUrl;
           $window.localStorage.rememberCredentials = remember;
+          $window.localStorage.useProxy = useProxy;
         },
         unset: function () {
           delete $window.localStorage.credentials;
           delete $window.localStorage.serverUrl;
           delete $window.localStorage.rememberCredentials;
+          delete $window.localStorage.useProxy;
         }
       };
     })
-    .factory('ConfigureRestangular', function (Restangular, Credentials) {
+    .factory('ConfigureRestangular', function (Restangular, Credentials, ProxyUrl) {
       return function () {
         if (Credentials.exist()) {
+          var headers = { authorization: 'Basic ' + Credentials.getBasic()};
+
           Restangular.setBaseUrl(Credentials.getBaseUrl());
-          Restangular.setDefaultHeaders({ authorization: 'Basic ' + Credentials.getBasic()});
+
+          if (Credentials.getUseProxy()) {
+            _.merge(headers, { 'x-teamcity': Credentials.getServerUrl() });
+          }
+
+          Restangular.setDefaultHeaders(headers);
         }
       }
     })
@@ -144,12 +159,12 @@ angular.module('smartcity.services', [])
 
       this.loading = false;
       this.set = function (value) {
-        if(angular.isDefined(token)) {
+        if (angular.isDefined(token)) {
           $timeout.cancel(token);
         }
 
         // delay hiding loading indicator
-        token = $timeout(function(){
+        token = $timeout(function () {
           self.loading = !!value;
         }, value ? 0 : 200);
       };

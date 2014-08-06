@@ -2,23 +2,29 @@ angular.module('smartcity.controllers', ['ionic'])
     .controller('loadingCtrl', function ($scope, loadingStatus) {
       $scope.status = loadingStatus;
     })
-    .controller('loginCtrl', function ($scope, $ionicPopup, $location, Credentials, ConfigureRestangular) {
+    .controller('loginCtrl', function ($scope, $ionicPopup, $location, $timeout, Credentials, ConfigureRestangular) {
       $scope.loginData = {
         username: Credentials.getUsername(),
         password: Credentials.getPassword(),
         serverUrl: Credentials.getServerUrl(),
-        remember: Credentials.getRemember()
+        remember: Credentials.getRemember(),
+        useProxy: Credentials.getUseProxy()
       };
 
       $scope.login = function () {
-        Credentials.set($scope.loginData.username,
+        Credentials.set(
+            $scope.loginData.username,
             $scope.loginData.password,
             $scope.loginData.serverUrl,
-            $scope.loginData.remember);
+            $scope.loginData.remember,
+            $scope.loginData.useProxy);
 
         ConfigureRestangular();
 
-        $location.url('/');
+        $timeout(function(){
+          $location.url('/');
+
+        }, 500);
       };
     })
     .controller('homeCtrl', function ($scope, $ionicPopup, $location, Users, Projects, Credentials, Restangular) {
