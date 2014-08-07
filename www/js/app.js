@@ -1,5 +1,5 @@
 angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.controllers', 'restangular'])
-    .value('ProxyUrl', 'http://localhost:3000')
+    .value('ProxyUrl', 'http://teamcityproxy.herokuapp.com')
     .config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
       $httpProvider.interceptors.push('loadingInterceptor');
 
