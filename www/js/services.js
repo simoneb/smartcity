@@ -160,11 +160,20 @@ angular.module('smartcity.services', [])
           return !!($window.localStorage.useProxy &&
               JSON.parse($window.localStorage.useProxy));
         },
+        loggedOut: function (loggedOut) {
+          if (angular.isDefined(loggedOut)) {
+            return $window.localStorage.loggedOut = loggedOut;
+          }
+
+          return !!($window.localStorage.loggedOut &&
+              JSON.parse($window.localStorage.loggedOut))
+        },
         set: function (username, password, serverUrl, remember, useProxy) {
           $window.localStorage.credentials = btoa(username + ':' + password);
           $window.localStorage.serverUrl = serverUrl;
           $window.localStorage.rememberCredentials = remember;
           $window.localStorage.useProxy = useProxy;
+          this.loggedOut(false);
         },
         unset: function () {
           delete $window.localStorage.credentials;

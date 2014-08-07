@@ -3,6 +3,8 @@ angular.module('smartcity.controllers', ['ionic'])
       $scope.status = loadingStatus;
     })
     .controller('loginCtrl', function ($scope, $ionicPopup, $location, $timeout, Credentials, ConfigureRestangular) {
+      $scope.isWebView = ionic.Platform.isWebView();
+
       $scope.loginData = {
         username: Credentials.getUsername(),
         password: Credentials.getPassword(),
@@ -31,10 +33,10 @@ angular.module('smartcity.controllers', ['ionic'])
       $scope.user = Users.getCurrentUser().$object;
       $scope.allProjects = Projects.getAll().$object;
 
-      $scope.logout = function () {
+      $scope.exit = function () {
         $ionicPopup.confirm({
-          title: 'Log out',
-          template: 'Are you sure you want to log out?',
+          title: 'Exit',
+          template: 'Are you sure you want to log exit?',
           okText: 'Yes',
           cancelText: 'No'
         }).then(function (yes) {
@@ -42,7 +44,14 @@ angular.module('smartcity.controllers', ['ionic'])
             if (!Credentials.getRemember()) {
               Credentials.unset();
             }
-            $location.url('/login');
+
+            Credentials.loggedOut(true);
+
+            if (ionic.Platform.isWebView()) {
+              ionic.Platform.exitApp();
+            } else {
+              $location.url('/login');
+            }
           }
         });
       };

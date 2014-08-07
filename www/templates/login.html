@@ -1,37 +1,40 @@
 <ion-view>
-    <ion-header-bar class="bar-dark">
+    <ion-header-bar>
         <h1 class="title">smartcity</h1>
     </ion-header-bar>
-    <ion-content class="dark-bg">
+    <ion-content>
         <form name="loginForm" ng-submit="login()">
             <ion-list>
-                <ion-item class="item-input-inset item-dark">
-                    <label class="item-input-wrapper">
-                        <input type="text" required placeholder="username" ng-model="loginData.username">
-                    </label>
+                <ion-item class="item-input item-stacked-label">
+                    <span class="input-label">Username</span>
+                    <input type="text" required placeholder="username" ng-model="loginData.username">
                 </ion-item>
-                <ion-item class="item-input-inset item-dark">
-                    <label class="item-input-wrapper" ng-switch="showPassword">
+                <label class="item item-input item-stacked-label">
+                    <span class="input-label">Password</span>
+                    <label ng-switch="showPassword">
                         <input ng-switch-when="true" type="text" required placeholder="password"
                                ng-model="loginData.password">
                         <input ng-switch-default type="password" required placeholder="password"
                                ng-model="loginData.password">
                     </label>
+                </label>
+                <label class="item item-checkbox">
                     <label class="checkbox">
                         <input type="checkbox" ng-model="showPassword">
                     </label>
-                    <small>Show</small>
-                </ion-item>
-                <ion-item class="item-input-inset item-dark">
-                    <label class="item-input-wrapper">
-                        <input type="url" required placeholder="server url" ng-model="loginData.serverUrl">
-                    </label>
+                    <small>Show password</small>
+                </label>
+                <label class="item item-input item-stacked-label">
+                    <span class="input-label">Server Uri</span>
+                    <input type="url" required placeholder="server url" ng-model="loginData.serverUrl">
+                </label>
+                <ion-item ng-if="!isWebView" class="item-checkbox">
                     <label class="checkbox">
                         <input type="checkbox" ng-model="loginData.useProxy">
                     </label>
-                    <small>Use builtin proxy</small>
+                    <small>Use proxy</small>
                 </ion-item>
-                <ion-item class="item-input-inset item-dark item-checkbox">
+                <ion-item class="item-checkbox">
                     <label class="checkbox">
                         <input type="checkbox" ng-model="loginData.remember">
                     </label>

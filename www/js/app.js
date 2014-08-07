@@ -127,7 +127,7 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
           StatusBar.styleDefault();
         }
 
-        if (!Credentials.exist()) {
+        if (!Credentials.exist() || Credentials.loggedOut()) {
           return $location.url('/login');
         }
       });
