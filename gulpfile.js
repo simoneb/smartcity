@@ -48,3 +48,19 @@ gulp.task('git-check', function(done) {
   }
   done();
 });
+
+gulp.task('release-android', function(done) {
+  sh.exec('cordova build --release android', function(code, output){
+    sh.rm('platforms/android/ant-build/smartcity.apk');
+    sh.exec('"' +process.env.JAVA_HOME + '/bin/jarsigner.exe" -verbose -sigalg SHA1withRSA -digestalg SHA1 ' +
+        '-keystore android-release-key.keystore -storepass QyezKqpSLQkm ' +
+        'platforms/android/ant-build/smartcity-release-unsigned.apk android-key', function(code, output){
+      sh.exec('"' +process.env['PROGRAMFILES(x86)'] +
+          '/Android/android-sdk/build-tools/20.0.0/zipalign.exe" -v 4 ' +
+          'platforms/android/ant-build/smartcity-release-unsigned.apk ' +
+          'platforms/android/ant-build/smartcity.apk', function(code, output){
+        done();
+      })
+    });
+  });
+});
