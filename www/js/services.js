@@ -1,10 +1,53 @@
 angular.module('smartcity.services', [])
+    .filter('rootProjects', function () {
+      return function (projects) {
+        if (!angular.isArray(projects)) {
+          return projects;
+        }
+
+        return _.filter(projects, { parentProjectId: '_Root' });
+      };
+    })
+    .filter('buildTypeName', function () {
+      return function (buildType) {
+        if (!_.has(buildType, 'projectName') || !_.has(buildType, 'name')) {
+          return '';
+        }
+        // TODO: this probably does not display correctly when build is on root project
+        return buildType.projectName + ' :: ' + buildType.name;
+      };
+    })
+    .filter('buildName', function () {
+      return function (build) {
+        if (!_.has(build, 'buildType')) {
+          return '';
+        }
+        // TODO: this probably does not display correctly when build is on root project
+        return build.buildType.projectName + ' :: ' + build.buildType.name;
+      };
+    })
+    .filter('projectName', function () {
+      return function (project, defaultName) {
+        var isRoot = function (p) {
+          return p && !p.parentProjectId;
+        };
+
+        if (isRoot(project)) return defaultName;
+
+        if (isRoot(project.parentProject)) return project.name;
+
+        return project.parentProject.name + ' :: ' + project.name;
+      }
+    })
     .factory('Projects', function (Restangular) {
+      var projects = [];
+
       return {
-        getShallowRootProjects: function (callback) {
-          return Restangular.all('projects').getList().then(function (projects) {
-            callback(_.filter(projects, { parentProjectId: '_Root' }));
-          });
+        getShallowById: function (projectId) {
+          return Restangular.one('projects', projectId || '_Root').get();
+        },
+        getAll: function () {
+          return Restangular.all('projects').getList();
         },
         getById: function (projectId) {
           var projects = [];
@@ -48,37 +91,39 @@ angular.module('smartcity.services', [])
     .factory('BuildTypes', function (Restangular) {
       return {
         getById: function (buildTypeId) {
-          var buildTypes = [];
+          var buildType = Restangular.one('buildTypes', buildTypeId).get();
 
-          Restangular.one('buildTypes', buildTypeId).get().then(function (buildType) {
-            delete buildType.builds;
-            buildTypes.push(buildType);
+          /*buildType.then(function (buildType) {
+           delete buildType.builds;
+           buildType.getList('builds', { count: 10 }).then(function (builds) {
+           async.map(builds || [], function (build, nextBuild) {
+           build.get().then(function (build) {
+           nextBuild(null, build);
+           });
+           }, function (err, builds) {
+           buildType.builds = builds;
+           });
+           });
+           return buildType;
+           });*/
 
-            buildType.getList('builds', { count: 10 }).then(function (builds) {
-              async.map(builds || [], function (build, nextBuild) {
-                build.get().then(function (build) {
-                  nextBuild(null, build);
-                });
-              }, function (err, builds) {
-                buildType.builds = builds;
-              });
-            });
-          });
-
-          return buildTypes;
+          return buildType;
+        },
+        findBuildsByBuildTypeId: function (buildTypeId, params) {
+          return Restangular
+              .one('buildTypes', buildTypeId)
+              .all('builds')
+              .getList(params);
         }
       }
     })
     .factory('Builds', function (Restangular) {
       return {
         getById: function (buildId) {
-          var builds = [];
+          return Restangular.one('builds', buildId).get();
+        },
+        findByBuildTypeId: function (buildTypeId, params) {
 
-          Restangular.one('builds', buildId).get().then(function (build) {
-            builds.push(build);
-          });
-
-          return builds;
         }
       }
     })
@@ -158,6 +203,7 @@ angular.module('smartcity.services', [])
           self = this;
 
       this.loading = false;
+
       this.set = function (value) {
         if (angular.isDefined(token)) {
           $timeout.cancel(token);

@@ -30,7 +30,7 @@
                     Home
                 </ion-item>
                 <ion-item class="item-divider">Projects</ion-item>
-                <ion-item ng-repeat="project in rootProjects" menu-close nav-clear href="#/{{project.id}}">
+                <ion-item ng-repeat="project in allProjects | rootProjects" menu-close nav-clear href="#/{{project.id}}">
                     {{project.name}}
                 </ion-item>
             </ion-list>

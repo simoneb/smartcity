@@ -1,9 +1,8 @@
-<div ng-repeat="build in builds">
     <ion-view title="{{ build.number}}">
         <ion-content>
             <ion-list>
                 <ion-item class="item-divider">
-                    {{ build.buildType.projectName }} :: {{ build.buildType.name }}
+                    {{ build | buildName }}
                 </ion-item>
                 <ion-item class="item-icon-left">
                     <ng-include src="'templates/buildStatusIcon.html'"></ng-include>
@@ -11,7 +10,7 @@
                 </ion-item>
                 <ion-item>
                     {{ build.startDate | date:'short' }} - {{ build.finishDate | date:'short' }}
-                    ({{ duration(build) }}s)
+                    ({{ duration() }}s)
                 </ion-item>
                 <div ng-switch="build.triggered.type">
                     <ion-item ng-switch-when="unknown">
@@ -32,4 +31,3 @@
             </ion-list>
         </ion-content>
     </ion-view>
-</div>
