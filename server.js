@@ -40,7 +40,7 @@ http.createServer(function (req, res) {
     path: '/httpAuth/app/rest/',
     headers: req.headers
   }, function (validationRes) {
-    if (validationRes.statusCode !== 200) {
+    if (validationRes.statusCode === 404) {
       console.log(targetUrl, 'is not a valid teamcity server');
 
       validServers[targetUrl] = false;
