@@ -29,7 +29,7 @@ angular.module('smartcity.controllers', ['ionic'])
         }, 500);
       };
     })
-    .controller('homeCtrl', function ($scope, $filter, $ionicPopup, $location, Users, Projects, Credentials, Restangular) {
+    .controller('homeCtrl', function ($scope, $filter, $ionicPopup, $location, Users, Projects, Credentials) {
       $scope.user = Users.getCurrentUser().$object;
       $scope.allProjects = Projects.getAll().$object;
 
@@ -56,24 +56,24 @@ angular.module('smartcity.controllers', ['ionic'])
         });
       };
     })
-    .controller('projectCtrl', function ($scope, $stateParams, Projects) {
-      $scope.allProjects = Projects.getAll().$object;
-      $scope.project = Projects.getShallowById($stateParams.projectId).$object;
+    .controller('projectCtrl', function ($scope, project, allProjects) {
+      $scope.project = project;
+      $scope.allProjects = allProjects;
     })
-    .controller('buildTypeCtrl', function ($scope, $stateParams, BuildTypes, Builds, Restangular) {
-      $scope.buildType = BuildTypes.getById($stateParams.buildTypeId).$object;
-      $scope.builds = BuildTypes.findBuildsByBuildTypeId($stateParams.buildTypeId, { count: 10 }).$object;
+    .controller('buildTypeCtrl', function ($scope, buildType, BuildTypes, BuildQueue) {
+      $scope.buildType = buildType;
+      $scope.builds = BuildTypes.findBuildsByBuildTypeId(buildType.id, { count: 10 }).$object;
 
-      $scope.triggerBuild = function (buildType) {
-        Restangular.one('buildQueue').customPOST({ buildTypeId: buildType.id });
+      $scope.triggerBuild = function () {
+        BuildQueue.enqueue({ buildTypeId: buildType.id });
       };
     })
-    .controller('buildCtrl', function ($scope, $stateParams, Builds) {
-      $scope.build = Builds.getById($stateParams.buildId).$object;
+    .controller('buildCtrl', function ($scope, build) {
+      $scope.build = build;
 
       $scope.duration = function () {
-        var a = moment($scope.build.finishDate, 'yyyyMMddTHHmmssZ');
-        var b = moment($scope.build.startDate, 'yyyyMMddTHHmmssZ');
+        var a = moment(build.finishDate, 'yyyyMMddTHHmmssZ');
+        var b = moment(build.startDate, 'yyyyMMddTHHmmssZ');
 
         return a.diff(b, 'seconds');
       };

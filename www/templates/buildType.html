@@ -1,10 +1,10 @@
-    <ion-nav-buttons side="right">
-        <button class="button button-positive" ng-click="triggerBuild(buildType)">Run</button>
-    </ion-nav-buttons>
-    <ion-view title="{{ buildType | buildTypeName }}">
-        <ion-content>
-            <ion-list>
-                <ng-include ng-repeat="build in builds" src="'templates/buildItems.html'"></ng-include>
-            </ion-list>
-        </ion-content>
-    </ion-view>
+<ion-nav-buttons side="right">
+    <button class="button button-positive" ng-click="triggerBuild()">Run</button>
+</ion-nav-buttons>
+<ion-view title="{{ buildType | buildTypeName }}">
+    <ion-content>
+        <ion-list>
+            <ng-include ng-repeat="build in builds" src="'templates/buildItems.html'"></ng-include>
+        </ion-list>
+    </ion-content>
+</ion-view>

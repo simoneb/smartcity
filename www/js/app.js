@@ -17,17 +17,35 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
           .state('home.project', {
             url: '/:projectId',
             templateUrl: 'templates/project.html',
-            controller: 'projectCtrl'
+            controller: 'projectCtrl',
+            resolve: {
+              project: function ($stateParams, Projects) {
+                return Projects.getShallowById($stateParams.projectId);
+              },
+              allProjects: function ($stateParams, Projects) {
+                return Projects.getAll();
+              }
+            }
           })
           .state('home.buildType', {
             url: '/buildType/:buildTypeId',
             templateUrl: 'templates/buildType.html',
-            controller: 'buildTypeCtrl'
+            controller: 'buildTypeCtrl',
+            resolve: {
+              buildType: function ($stateParams, BuildTypes) {
+                return BuildTypes.getById($stateParams.buildTypeId);
+              }
+            }
           })
           .state('home.build', {
             url: '/build/:buildId',
             templateUrl: 'templates/build.html',
-            controller: 'buildCtrl'
+            controller: 'buildCtrl',
+            resolve: {
+              build: function ($stateParams, Builds) {
+                return Builds.getById($stateParams.buildId);
+              }
+            }
           });
 
       $urlRouterProvider.otherwise('/');

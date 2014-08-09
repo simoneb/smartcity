@@ -127,6 +127,13 @@ angular.module('smartcity.services', [])
         }
       }
     })
+    .factory('BuildQueue', function (Restangular) {
+      return {
+        enqueue: function (descriptor) {
+          return Restangular.one('buildQueue').customPOST(descriptor);
+        }
+      };
+    })
     .factory('Credentials', function ($window, ProxyUrl) {
       function buildBaseUrl(serverUrl) {
         return serverUrl + (/\/$/.test(serverUrl) ? '' : '/') + 'httpAuth/app/rest';
