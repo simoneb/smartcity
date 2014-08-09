@@ -1,33 +1,43 @@
-    <ion-view title="{{ build.number}}">
-        <ion-content>
-            <ion-list>
-                <ion-item class="item-divider">
-                    {{ build | buildName }}
-                </ion-item>
-                <ion-item class="item-icon-left">
-                    <ng-include src="'templates/buildStatusIcon.html'"></ng-include>
-                    {{ build.statusText }}
-                </ion-item>
-                <ion-item>
-                    {{ build.startDate | date:'short' }} - {{ build.finishDate | date:'short' }}
-                    ({{ duration() }}s)
-                </ion-item>
-                <div ng-switch="build.triggered.type">
-                    <ion-item ng-switch-when="unknown">
-                        Trigger: ? on {{ build.triggered.date | date:'short' }}
-                    </ion-item>
-                    <ion-item ng-switch-default>
-                        Trigger: {{ build.triggered.type }} - {{ build.triggered.details }}
-                        on {{ build.triggered.date | date:'short' }}
-                    </ion-item>
+<ion-nav-buttons side="right">
+    <button class="button button-positive" ng-click="triggerBuild()">Run</button>
+</ion-nav-buttons>
+<ion-view title="{{ build.number}}">
+    <ion-content>
+        <ion-list>
+            <ion-item class="item-divider">
+                {{ build | buildName }}
+            </ion-item>
+            <ion-item class="item-icon-left">
+                <ng-include src="'templates/buildStatusIcon.html'"></ng-include>
+                {{ build.statusText }}
+            </ion-item>
+            <ion-item>
+                {{ build | buildStartFinish }}
+                ({{ build | buildDuration }})
+                <div ng-if="build.running" style="float: right">
+                    <small>{{ build | buildEta }} left</small>
+                    <progress style="display: inline; width: 50px; margin: 0 auto" ng-value="build.percentageComplete"
+                              min="0" max="100"></progress>
                 </div>
-                <ion-item>
-                    Agent: {{ build.agent.name }}
+            </ion-item>
+            <div ng-switch="build.triggered.type">
+                <ion-item ng-switch-default>
+                    Trigger: ? on {{ build.triggered.date | date:'short' }}
                 </ion-item>
-                <ion-item ng-if="build.lastChanges.change.length">
-                    Last changed by {{ build.lastChanges.change[0].username }} on
-                    {{ build.lastChanges.change[0].date | date:'short' }}
+                <ion-item ng-switch-when="user">
+                    Trigger: {{ build.triggered.user.username }} on {{ build.triggered.date | date:'short' }}
                 </ion-item>
-            </ion-list>
-        </ion-content>
-    </ion-view>
+                <ion-item ng-switch-when="vcs">
+                    Trigger: VCS - {{ build.triggered.details }} on {{ build.triggered.date | date:'short' }}
+                </ion-item>
+            </div>
+            <ion-item>
+                Agent: {{ build.agent.name }}
+            </ion-item>
+            <ion-item ng-if="build.lastChanges.change.length">
+                Last changed by {{ build.lastChanges.change[0].username }} on
+                {{ build.lastChanges.change[0].date | date:'short' }}
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

@@ -1,4 +1,4 @@
-angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.controllers', 'restangular'])
+angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.controllers', 'smartcity.filters', 'restangular'])
     .value('ProxyUrl', 'http://teamcityproxy.herokuapp.com')
     .config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
       $httpProvider.interceptors.push('loadingInterceptor');
@@ -42,15 +42,20 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
             templateUrl: 'templates/build.html',
             controller: 'buildCtrl',
             resolve: {
-              build: function ($stateParams, Builds) {
-                return Builds.getById($stateParams.buildId);
+              build: function (getBuild) {
+                return getBuild();
+              },
+              getBuild: function ($stateParams, Builds) {
+                return function () {
+                  return Builds.getById($stateParams.buildId);
+                };
               }
             }
           });
 
       $urlRouterProvider.otherwise('/');
     })
-    .run(function ($ionicPlatform, $location, $ionicPopup, Credentials, Restangular, ConfigureRestangular) {
+    .run(function ($location, $ionicPopup, Credentials, Restangular, ConfigureRestangular) {
       var requestErrorShown = false,
           authenticationErrorShown = false,
           notFoundErrorShown = false;
@@ -135,7 +140,7 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
         return data;
       });
 
-      $ionicPlatform.ready(function () {
+      ionic.Platform.ready(function () {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
         if (window.cordova && window.cordova.plugins.Keyboard) {

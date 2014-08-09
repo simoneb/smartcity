@@ -62,35 +62,55 @@ angular.module('smartcity.controllers', ['ionic'])
     })
     .controller('buildTypeCtrl', function ($scope, buildType, BuildTypes, BuildQueue) {
       $scope.buildType = buildType;
-      $scope.builds = BuildTypes.findBuildsByBuildTypeId(buildType.id, { count: 10 }).$object;
+      $scope.builds = BuildTypes.findBuildsByBuildTypeId(buildType.id, { count: 10, locator: 'running:any' }).$object;
 
       $scope.triggerBuild = function () {
         BuildQueue.enqueue({ buildTypeId: buildType.id });
       };
     })
-    .controller('buildCtrl', function ($scope, build) {
+    .controller('buildCtrl', function ($scope, $interval, build, getBuild, BuildQueue) {
+      var refreshToken;
+
       $scope.build = build;
 
-      $scope.duration = function () {
-        var a = moment(build.finishDate, 'yyyyMMddTHHmmssZ');
-        var b = moment(build.startDate, 'yyyyMMddTHHmmssZ');
-
-        return a.diff(b, 'seconds');
+      $scope.triggerBuild = function () {
+        BuildQueue.enqueue({ buildTypeId: $scope.build.buildTypeId });
       };
+
+      if (build.running) {
+        refreshToken = $interval(function () {
+          getBuild().then(function (build) {
+            $scope.build = build;
+
+            if (!build.running) {
+              $interval.cancel(refreshToken);
+            }
+          })
+        }, 5000);
+      }
+
+      $scope.$on('$destroy', function () {
+        if (refreshToken)
+          $interval.cancel(refreshToken);
+      });
     })
-    .controller('runningBuildsCtrl', function ($scope, $interval, Restangular) {
+    .controller('runningBuildsCtrl', function ($scope, $interval, $timeout, Restangular) {
       Restangular = Restangular.withConfig(function (config) {
         return config.setDefaultHttpFields({cache: false});
       });
 
-      var token = $interval(function () {
-        Restangular.all('builds')
+      var getRunningBuilds = function () {
+        Restangular.one('builds')
             .withHttpConfig({ skipLoadingIndicator: true })
-            .getList({ count: 1, locator: 'running:true' })
+            .get({ fields: 'count', locator: 'running:true' })
             .then(function (runningBuilds) {
-              $scope.runningBuilds = runningBuilds;
+              $scope.runningBuildsCount = runningBuilds.count;
             });
-      }, 20000);
+      };
+
+      var token = $interval(getRunningBuilds, 5000);
+
+      $timeout(getRunningBuilds);
 
       $scope.$on('$destroy', function () {
         $interval.cancel(token);

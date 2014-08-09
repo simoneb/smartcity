@@ -1,5 +1,9 @@
-<div ng-switch="build.status">
-    <i class="icon ion-checkmark-circled balanced" ng-switch-when="SUCCESS"></i>
-    <i class="icon ion-alert assertive" ng-switch-when="FAILURE"></i>
+<div ng-switch="build.state + '/' + build.status">
+    <i class="icon ion-checkmark-circled balanced" ng-switch-when="finished/SUCCESS"></i>
+    <i class="icon ion-loading-b balanced" ng-switch-when="running/SUCCESS"></i>
+    <i class="icon ion-alert-circled assertive" ng-switch-when="finished/FAILURE"></i>
+    <i class="icon ion-loading-b assertive" ng-switch-when="running/FAILURE"></i>
+    <i class="icon ion-alert-circled assertive" ng-switch-when="finished/ERROR"></i>
+    <i class="icon ion-loading-b assertive" ng-switch-when="running/ERROR"></i>
     <i class="icon ion-help-circled" ng-switch-default></i>
 </div>
