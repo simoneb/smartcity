@@ -4,6 +4,16 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
       $httpProvider.interceptors.push('loadingInterceptor');
 
       $stateProvider
+          .state('landing', {
+            url: '/landing',
+            onEnter: function ($location, Credentials) {
+              if (!Credentials.exist() || Credentials.loggedOut()) {
+                $location.url('/login');
+              } else {
+                $location.url('/')
+              }
+            }
+          })
           .state('login', {
             url: '/login',
             templateUrl: 'templates/login.html',
@@ -53,9 +63,9 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
             }
           });
 
-      $urlRouterProvider.otherwise('/');
+      $urlRouterProvider.otherwise('/landing');
     })
-    .run(function ($location, $ionicPopup, Credentials, Restangular, ConfigureRestangular) {
+    .run(function ($ionicPopup, $location, Credentials, Restangular, ConfigureRestangular) {
       var requestErrorShown = false,
           authenticationErrorShown = false,
           notFoundErrorShown = false;
@@ -148,10 +158,6 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
         }
         if (window.StatusBar) {
           StatusBar.styleDefault();
-        }
-
-        if (!Credentials.exist() || Credentials.loggedOut()) {
-          return $location.url('/login');
         }
       });
     });

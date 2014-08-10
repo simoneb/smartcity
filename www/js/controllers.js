@@ -25,7 +25,6 @@ angular.module('smartcity.controllers', ['ionic'])
 
         $timeout(function () {
           $location.url('/');
-
         }, 500);
       };
     })
