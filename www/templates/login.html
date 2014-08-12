@@ -1,7 +1,11 @@
-<ion-view>
-    <ion-header-bar>
-        <h1 class="title">smartcity</h1>
-    </ion-header-bar>
+<ion-nav-bar animation="none">
+    <ion-nav-buttons side="right">
+        <label ng-show="status.loading" class="item-icon-left" ng-controller="loadingCtrl">
+            <ion-icon class="icon ion-looping"></ion-icon>
+        </label>
+    </ion-nav-buttons>
+</ion-nav-bar>
+<ion-view title="smartcity">
     <ion-content>
         <form name="loginForm" ng-submit="login()">
             <ion-list>
