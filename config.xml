@@ -2,10 +2,10 @@
 <widget id="com.ionicframework.smartcity125272" android-versionCode="7" version="0.0.7" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>smartcity</name>
   <description>
-        An Ionic Framework and Cordova project.
+        A TeamCity client.
     </description>
-  <author email="hi@ionicframework" href="http://ionicframework.com/">
-      Ionic Framework Team
+  <author email="simone.busoli@gmail.com" href="http://simoneb.github.io/">
+      Simone Busoli
     </author>
   <content src="index.html"/>
   <access origin="*"/>

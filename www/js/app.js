@@ -1,8 +1,9 @@
 angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.controllers', 'smartcity.filters', 'restangular'])
     .value('ProxyUrl', 'http://teamcityproxy.herokuapp.com')
+    .constant('$ionicLoadingConfig', {
+      template: 'Loading...'
+    })
     .config(function ($stateProvider, $urlRouterProvider, $httpProvider) {
-      $httpProvider.interceptors.push('loadingInterceptor');
-
       $stateProvider
           .state('landing', {
             url: '/landing',
@@ -44,6 +45,9 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
             resolve: {
               buildType: function ($stateParams, BuildTypes) {
                 return BuildTypes.getById($stateParams.buildTypeId);
+              },
+              builds: function($stateParams, BuildTypes) {
+                return BuildTypes.findBuildsByBuildTypeId($stateParams.buildTypeId, { count: 10, locator: 'running:any' });
               }
             }
           })
@@ -65,12 +69,26 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
 
       $urlRouterProvider.otherwise('/landing');
     })
-    .run(function ($ionicPopup, $location, Credentials, Restangular, ConfigureRestangular) {
+    .run(function ($rootScope, $ionicPopup, $ionicLoading, $location, Credentials, Restangular, ConfigureRestangular) {
       var requestErrorShown = false,
           authenticationErrorShown = false,
           notFoundErrorShown = false;
 
       ConfigureRestangular();
+
+      $rootScope.$on('$stateChangeStart', function (event, to) {
+        if (to.resolve) {
+          $ionicLoading.show();
+        }
+      });
+
+      $rootScope.$on('$stateChangeSuccess', function () {
+        $ionicLoading.hide();
+      });
+
+      $rootScope.$on('$stateChangeError', function () {
+        $ionicLoading.hide();
+      });
 
       Restangular.addResponseInterceptor(function (data, operation, what, url, response) {
         if (operation === "getList") {

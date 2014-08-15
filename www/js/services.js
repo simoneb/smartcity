@@ -1,4 +1,4 @@
-angular.module('smartcity.services', [])
+angular.module('smartcity.services', ['ionic'])
     .factory('Projects', function (Restangular) {
       var projects = [];
 
@@ -171,41 +171,6 @@ angular.module('smartcity.services', [])
           return Restangular.oneUrl('users',
                   Credentials.getBaseUrl() + '/users/username:' + Credentials.getUsername())
               .get();
-        }
-      }
-    })
-    .service('loadingStatus', function ($timeout) {
-      var token,
-          self = this;
-
-      this.loading = false;
-
-      this.set = function (value) {
-        if (angular.isDefined(token)) {
-          $timeout.cancel(token);
-        }
-
-        // delay hiding loading indicator
-        token = $timeout(function () {
-          self.loading = !!value;
-        }, value ? 0 : 200);
-      };
-    })
-    .factory('loadingInterceptor', function ($q, $timeout, loadingStatus) {
-      return {
-        request: function (config) {
-          if (!config.skipLoadingIndicator) {
-            loadingStatus.set(true);
-          }
-          return config;
-        },
-        response: function (response) {
-          loadingStatus.set(false);
-          return response;
-        },
-        responseError: function (rejection) {
-          loadingStatus.set(false);
-          return $q.reject(rejection);
         }
       }
     });

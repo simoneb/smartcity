@@ -1,7 +1,4 @@
 angular.module('smartcity.controllers', ['ionic'])
-    .controller('loadingCtrl', function ($scope, loadingStatus) {
-      $scope.status = loadingStatus;
-    })
     .controller('loginCtrl', function ($scope, $ionicPopup, $location, $timeout, Credentials, ConfigureRestangular) {
       $scope.isWebView = ionic.Platform.isWebView();
 
@@ -55,17 +52,48 @@ angular.module('smartcity.controllers', ['ionic'])
         });
       };
     })
-    .controller('projectCtrl', function ($scope, project, allProjects) {
+    .controller('projectCtrl', function ($scope, project, allProjects, BuildTypes, Builds) {
       $scope.project = project;
+
+      async.eachSeries(project.buildTypes.buildType, function (buildType, nextBuildType) {
+        BuildTypes.findBuildsByBuildTypeId(buildType.id, { count: 1}).then(function (data) {
+          buildType.builds = data;
+          nextBuildType();
+        });
+      }, function () {
+        async.eachSeries(project.buildTypes.buildType, function (buildType, nextBuildType) {
+          if (buildType.builds.length) {
+            Builds.getById(buildType.builds[0].id).then(function (data) {
+              buildType.builds = [data];
+              nextBuildType();
+            });
+          }
+        });
+      });
+
       $scope.allProjects = allProjects;
     })
-    .controller('buildTypeCtrl', function ($scope, buildType, BuildTypes, BuildQueue) {
+    .controller('buildTypeCtrl', function ($scope, $timeout, buildType, builds, Builds, BuildQueue) {
+      var timeoutToken;
+
       $scope.buildType = buildType;
-      $scope.builds = BuildTypes.findBuildsByBuildTypeId(buildType.id, { count: 10, locator: 'running:any' }).$object;
+      $scope.builds = builds;
+
+      async.eachSeries(builds, function (build, nextBuild) {
+        Builds.getById(build.id).then(function (data) {
+          _.merge(build, data);
+          timeoutToken = $timeout(nextBuild, 1000);
+        });
+      });
 
       $scope.triggerBuild = function () {
         BuildQueue.enqueue({ buildTypeId: buildType.id });
       };
+
+      $scope.$on('$destroy', function () {
+        if (timeoutToken)
+          $timeout.cancel(timeoutToken);
+      });
     })
     .controller('buildCtrl', function ($scope, $interval, build, getBuild, BuildQueue) {
       var refreshToken;
