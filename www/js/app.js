@@ -99,6 +99,8 @@ angular.module('smartcityApp', ['ionic', 'smartcity.services', 'smartcity.contro
       });
 
       Restangular.setErrorInterceptor(function (response, deferred, responseHandler) {
+        $ionicLoading.hide();
+
         switch (response.status) {
           case 401:
             if (authenticationErrorShown) return false;
