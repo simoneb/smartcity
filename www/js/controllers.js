@@ -32,7 +32,7 @@ angular.module('smartcity.controllers', ['ionic'])
       $scope.exit = function () {
         $ionicPopup.confirm({
           title: 'Exit',
-          template: 'Are you sure you want to log exit?',
+          template: 'Are you sure you want to exit?',
           okText: 'Yes',
           cancelText: 'No'
         }).then(function (yes) {
